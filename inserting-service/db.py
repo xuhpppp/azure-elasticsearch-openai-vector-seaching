@@ -13,18 +13,9 @@ def db_connect():
     # mysql_engine = create_engine(DATABASE_URL, connect_args=mysql_ssl_args)
     # SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=mysql_engine)
     mysql_engine = create_engine(DATABASE_URL, connect_args=mysql_ssl_args)
-    sessionmaker(autocommit=False, autoflush=False, bind=mysql_engine)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=mysql_engine)
 
     # create the database tables (only if they don't exist)
     Base.metadata.create_all(bind=mysql_engine)
 
-    print("Successfully accessed MySQL!")
-
-
-# # dependency to get the database session
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
+    return SessionLocal
