@@ -3,6 +3,8 @@ from db import db_connect
 from request import MedicineCreate
 from sqlalchemy.orm import Session
 from models import Medicine
+from storageQueue import queue_connect
+import json
 
 # connect to MySQL db
 SessionLocal = db_connect()
@@ -15,6 +17,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# connect to Azure Storage Queue
+queue_client = queue_connect()
 
 
 app = FastAPI()
@@ -35,6 +41,10 @@ def create_medicine(medicine: MedicineCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_medicine)
 
-    # send message to storage queue
+    # send message to Azure Storage Queue in JSON format
+    message_body = json.dumps(
+        {"name": medicine.name, "description": medicine.description}
+    )
+    queue_client.send_message(message_body)
 
     return new_medicine
