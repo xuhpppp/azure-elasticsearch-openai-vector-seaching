@@ -42,9 +42,8 @@ def create_medicine(medicine: MedicineCreate, db: Session = Depends(get_db)):
     db.refresh(new_medicine)
 
     # send message to Azure Storage Queue
-    medicine_info = (
-        f'{{"Name": "{medicine.name}", "Description": "{medicine.description}"}}'
-    )
+    medicine_info = f'{{"id": "{new_medicine.id}", "Name": "{medicine.name}", "Description": "{medicine.description}"}}'
+
     queue_client.send_message(content=medicine_info)
 
     return new_medicine

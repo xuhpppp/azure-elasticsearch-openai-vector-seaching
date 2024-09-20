@@ -4,3 +4,5 @@
 
 azure-functions
 openai
+# use suitable ES version
+elasticsearch==8.15.1

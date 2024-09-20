@@ -3,11 +3,24 @@ import logging
 import json
 from openai import OpenAI
 import os
+from elasticsearch import Elasticsearch
 
 
 # OpenAI variables
 EMBEDDING_MODEL = "text-embedding-3-small"
 NUMBER_OF_DIMENSIONS = 1408
+
+# connect to ElasticSearch
+es_client = Elasticsearch(
+    [
+        {
+            "host": os.environ["ELASTICSEARCH_HOST"],
+            "port": int(os.environ["ELASTICSEARCH_PORT"]),
+            "scheme": "http",
+        }
+    ]
+)
+ES_INDEX = os.environ["ELASTICSEARCH_INDEX"]
 
 
 app = func.FunctionApp()
@@ -44,4 +57,10 @@ def medicine_insert_trigger(azqueue: func.QueueMessage):
         .embedding
     )
 
-    logging.info(medicine_embedded)
+    # Write vectors to ElasticSearch
+    es_client.index(
+        index=ES_INDEX,
+        body={"medicine_id": medicine_info["id"], "medicine_vector": medicine_embedded},
+    )
+
+    # logging.info("Insert successfully!")
