@@ -13,7 +13,6 @@ sed -i '/xpack.security.http.ssl:/,/keystore.path:/s/enabled: true/enabled: fals
 sed -i '/xpack.security.transport.ssl:/,/keystore.path:/s/enabled: false/enabled: true/' /etc/elasticsearch/elasticsearch.yml
 systemctl start elasticsearch
 systemctl enable elasticsearch
-# index medicine_vectors initiation
 curl --location --request PUT 'http://localhost:9200/medicine_vectors' \
 --header 'Content-Type: application/json' \
 --data '{

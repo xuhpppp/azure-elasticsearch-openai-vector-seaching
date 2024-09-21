@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, APIRouter
 from openai import OpenAI
 import os
 from sqlalchemy.orm import Session
@@ -24,16 +24,18 @@ def get_db():
 
 
 app = FastAPI()
+medicine_router = APIRouter(prefix="/search")
 
 
 # health check endpoint
-@app.get("/health-check/")
+@medicine_router.get("/health-check/")
 def health_check():
     return {"Message": "Okay"}
 
 
 # GET request with a string query parameter to find medicines
-@app.get("/medicines-search/")
+# covert content to vector -> find in ElasticSearch -> mapping ids with MySQL
+@medicine_router.get("/medicines/")
 def find_medicines(content: str, db: Session = Depends(get_db)):
     # embed search content to vector
     content_embedded = (
@@ -77,3 +79,6 @@ def find_medicines(content: str, db: Session = Depends(get_db)):
     ]
 
     return results
+
+
+app.include_router(medicine_router)

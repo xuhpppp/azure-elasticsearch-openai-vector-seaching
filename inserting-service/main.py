@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, APIRouter
 from db import db_connect
 from request import MedicineCreate
 from sqlalchemy.orm import Session
@@ -24,16 +24,17 @@ queue_client = queue_connect()
 
 
 app = FastAPI()
+medicine_router = APIRouter(prefix="/insert")
 
 
 # Health check endpoint
-@app.get("/health-check/")
+@medicine_router.get("/health-check/")
 def health_check():
     return {"Message": "Okay"}
 
 
 # POST API to insert data into Medicine table
-@app.post("/medicines-insert/", response_model=MedicineCreate)
+@medicine_router.post("/medicines/", response_model=MedicineCreate)
 def create_medicine(medicine: MedicineCreate, db: Session = Depends(get_db)):
     # create a new Medicine object
     new_medicine = Medicine(name=medicine.name, description=medicine.description)
@@ -47,3 +48,6 @@ def create_medicine(medicine: MedicineCreate, db: Session = Depends(get_db)):
     queue_client.send_message(content=medicine_info)
 
     return new_medicine
+
+
+app.include_router(medicine_router)
