@@ -4,6 +4,9 @@ import os
 from sqlalchemy.orm import Session
 from db import db_connect, es_client, ELASTICSEARCH_INDEX
 from models import Medicine
+from storageQueue import queue_connect
+from request import MedicineCreate
+
 
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 EMBEDDING_MODEL = "text-embedding-3-small"
@@ -23,6 +26,10 @@ def get_db():
         db.close()
 
 
+# connect to Azure Storage Queue
+queue_client = queue_connect()
+
+
 app = FastAPI()
 medicine_router = APIRouter(prefix="/search")
 
@@ -31,6 +38,23 @@ medicine_router = APIRouter(prefix="/search")
 @medicine_router.get("/health-check/")
 def health_check():
     return {"Message": "Okay"}
+
+
+# POST API to insert data into Medicine table
+@medicine_router.post("/medicines/", response_model=MedicineCreate)
+def create_medicine(medicine: MedicineCreate, db: Session = Depends(get_db)):
+    # create a new Medicine object
+    new_medicine = Medicine(name=medicine.name, description=medicine.description)
+    db.add(new_medicine)
+    db.commit()
+    db.refresh(new_medicine)
+
+    # send message to Azure Storage Queue
+    medicine_info = f'{{"id": "{new_medicine.id}", "Name": "{medicine.name}", "Description": "{medicine.description}"}}'
+
+    queue_client.send_message(content=medicine_info)
+
+    return new_medicine
 
 
 # GET request with a string query parameter to find medicines
