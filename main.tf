@@ -11,3 +11,13 @@ module "network" {
 
   depends_on = [azurerm_resource_group.rg]
 }
+
+module "bastion" {
+  source = "./tf-bastion-module"
+
+  resource_group_name = var.resource_group_name
+  bastion_location    = var.resource_group_location
+  bastion_subnet_id   = module.network.vnet_details.bastion_subnet.subnet_id
+
+  depends_on = [azurerm_resource_group.rg, module.network]
+}

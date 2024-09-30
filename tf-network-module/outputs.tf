@@ -9,6 +9,7 @@ output "vnet_details" {
     }
 
     bastion_subnet = {
+      subnet_id        = azurerm_subnet.bastion_subnet.id
       name             = azurerm_subnet.bastion_subnet.name
       address_prefixes = azurerm_subnet.bastion_subnet.address_prefixes
     }
