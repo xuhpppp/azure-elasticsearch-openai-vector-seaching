@@ -14,3 +14,12 @@ output "bastion_vm_password" {
   value     = module.bastion.bastion_vm_password
   sensitive = true
 }
+
+output "mysqldb_password" {
+  value     = module.db.mysqldb_password
+  sensitive = true
+}
+
+output "mysqldb_server_details" {
+  value = module.db.mysqldb_server_details
+}

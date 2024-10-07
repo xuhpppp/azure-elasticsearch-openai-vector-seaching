@@ -20,6 +20,15 @@ resource "azurerm_subnet" "mysqldb_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet.name
 
   default_outbound_access_enabled = false
+  delegation {
+    name = "mysqldb-subnet-delegation"
+    service_delegation {
+      name = "Microsoft.DBforMySQL/flexibleServers"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action",
+      ]
+    }
+  }
 
   depends_on = [azurerm_virtual_network.vnet]
 }

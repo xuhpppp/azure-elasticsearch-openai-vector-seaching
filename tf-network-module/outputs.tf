@@ -4,6 +4,7 @@ output "vnet_details" {
     cidr = azurerm_virtual_network.vnet.address_space
 
     mysqldb_subnet = {
+      subnet_id        = azurerm_subnet.mysqldb_subnet.id
       name             = azurerm_subnet.mysqldb_subnet.name
       address_prefixes = azurerm_subnet.mysqldb_subnet.address_prefixes
     }
